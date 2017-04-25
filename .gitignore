@@ -2,8 +2,6 @@
 ./python/playground/MNIST_data/
 
 
-# Created by https://www.gitignore.io/api/C++,macos,Windows,Xcode,Python,PyCharm
-
 ### C++ ###
 # Prerequisites
 *.d
@@ -37,6 +35,7 @@
 *.exe
 *.out
 *.app
+
 
 ### macOS ###
 *.DS_Store
@@ -85,6 +84,7 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
 
 ### PyCharm ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and Webstorm
@@ -147,6 +147,7 @@ fabric.properties
 
 # Sonarlint plugin
 .idea/sonarlint
+
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
@@ -247,6 +248,7 @@ ENV/
 # mkdocs documentation
 /site
 
+
 ### Xcode ###
 # Xcode
 #
@@ -277,5 +279,3 @@ xcuserdata/
 !*.xcodeproj/xcshareddata/
 !*.xcworkspace/contents.xcworkspacedata
 /*.gcno
-
-# End of https://www.gitignore.io/api/C++,macos,Windows,Xcode,Python,PyCharm
