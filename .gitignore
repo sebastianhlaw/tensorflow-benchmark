@@ -1,5 +1,7 @@
 ### Locals ###
-./python/playground/MNIST_data/*
+python/playground/MNIST_data/
+/data/
+/logs/
 
 
 ### C++ ###

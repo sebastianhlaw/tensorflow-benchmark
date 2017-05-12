@@ -31,7 +31,7 @@ def max_pool_2x2(x):
 
 
 # Load the data
-mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
+mnist = input_data.read_data_sets("../../data/mnist/", one_hot=True)
 
 # Set up the model
 x = tf.placeholder(tf.float32, [None, 784])  # None indicates dimension can be any length
