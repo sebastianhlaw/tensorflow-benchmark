@@ -35,15 +35,15 @@ mnist = input_data.read_data_sets("../../data/mnist/", one_hot=True)
 
 # Set up the model
 x = tf.placeholder(tf.float32, [None, 784])  # None indicates dimension can be any length
+x_image = tf.reshape(x, [-1, 28, 28, 1])
 y_ = tf.placeholder(tf.float32, [None, 10])
-W = tf.Variable(tf.zeros([784, 10]))  # weights
-b = tf.Variable(tf.zeros([10]))  # biases
-y = tf.nn.softmax(tf.matmul(x, W) + b)
+# W = tf.Variable(tf.zeros([784, 10]))  # weights
+# b = tf.Variable(tf.zeros([10]))  # biases
+# y = tf.nn.softmax(tf.matmul(x, W) + b)
 
 # Convolution layers
 W_conv1 = weight_variable([5, 5, 1, 32])
 b_conv1 = bias_variable([32])
-x_image = tf.reshape(x, [-1, 28, 28, 1])
 h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
 h_pool1 = max_pool_2x2(h_conv1)
 

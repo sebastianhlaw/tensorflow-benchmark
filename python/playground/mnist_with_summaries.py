@@ -32,7 +32,6 @@ import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 
 FLAGS = None
-
 DATA_DIR = "../../data/mnist/"
 LOG_DIR = "../../logs/mnist_with_summaries/"
 
