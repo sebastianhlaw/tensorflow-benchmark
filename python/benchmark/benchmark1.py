@@ -13,6 +13,12 @@ Architecture:
 
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
+import numpy as np
+
+# Random seed setting for reproducible results
+tf.set_random_seed(0)  # This is graph-level seed, needs to be set before graph operations executed.
+np.random.seed(0)  # Input data shuffle is contolled by numpy seed.
+op_level_seed = None  # No need to set op-level seed if graph-level is set, else weights all initialize identically.
 
 # Dimensions of data
 X_SIDE = 28
@@ -31,7 +37,7 @@ x_square = tf.reshape(x, [-1, X_SIDE, X_SIDE, 1])
 
 def weight_variable(shape):
     """Create a weight variable with appropriate initialization."""
-    initial = tf.truncated_normal(shape, stddev=0.1, seed=0)
+    initial = tf.truncated_normal(shape, stddev=0.1, seed=op_level_seed)
     return tf.Variable(initial)
 
 
@@ -89,7 +95,7 @@ def fc_layer(x, shape, activation=tf.identity):
 def feed_dict(train, batch_size=10):
     """Make a TensorFlow feed_dict: maps data onto Tensor placeholders."""
     if train:
-        xs, ys = mnist.train.next_batch(batch_size)
+        xs, ys = mnist.train.next_batch(batch_size, shuffle=True)
     else:
         xs, ys = mnist.test.images, mnist.test.labels
     return {x: xs, y_: ys}
@@ -108,11 +114,11 @@ y = fc_layer(layer4_flat, [7 * 7 * 32, 10])
 diff = tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y)
 cross_entropy = tf.reduce_mean(diff)
 train_step = tf.train.RMSPropOptimizer(0.001).minimize(cross_entropy)
+
 correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 # Run model
-tf.set_random_seed(123)
 config = tf.ConfigProto(inter_op_parallelism_threads=1, intra_op_parallelism_threads=1)  # lock to 1 processor,  see
 #  <https://stackoverflow.com/questions/41233635/tensorflow-inter-and-intra-op-parallelism-configuration>
 sess = tf.Session(config=config)
