@@ -22,7 +22,6 @@ Y_DIM = 10
 # Import data
 DATA_DIR = "../../data/mnist/"
 mnist = input_data.read_data_sets(DATA_DIR, one_hot=True)
-sess = tf.InteractiveSession()
 
 # Input placeholders
 x = tf.placeholder(tf.float32, [None, X_DIM])
@@ -32,7 +31,7 @@ x_square = tf.reshape(x, [-1, X_SIDE, X_SIDE, 1])
 
 def weight_variable(shape):
     """Create a weight variable with appropriate initialization."""
-    initial = tf.truncated_normal(shape, stddev=0.1)
+    initial = tf.truncated_normal(shape, stddev=0.1, seed=0)
     return tf.Variable(initial)
 
 
@@ -87,7 +86,7 @@ def fc_layer(x, shape, activation=tf.identity):
     return activation(tf.matmul(x, W) + b)
 
 
-def feed_dict(train, batch_size=100):
+def feed_dict(train, batch_size=10):
     """Make a TensorFlow feed_dict: maps data onto Tensor placeholders."""
     if train:
         xs, ys = mnist.train.next_batch(batch_size)
@@ -113,11 +112,18 @@ correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 # Run model
-tf.global_variables_initializer().run()
-for i in range(6000):
-    if i % 100 == 0:
-        train_accuracy = accuracy.eval(feed_dict=feed_dict(True))
-        test_accuracy = accuracy.eval(feed_dict=feed_dict(False))
-        print("step %d, train acc.: %g, test acc.: %g" % (i, train_accuracy, test_accuracy))
-    sess.run(train_step, feed_dict=feed_dict(True))
-print("%d runs gives test accurracy: %g" % (i+1, accuracy.eval(feed_dict=feed_dict(False))))
+tf.set_random_seed(123)
+config = tf.ConfigProto(inter_op_parallelism_threads=1, intra_op_parallelism_threads=1)  # lock to 1 processor,  see
+#  <https://stackoverflow.com/questions/41233635/tensorflow-inter-and-intra-op-parallelism-configuration>
+sess = tf.Session(config=config)
+# sess = tf.InteractiveSession()
+init = tf.global_variables_initializer()
+with sess:
+    sess.run(init)
+    for i in range(600):
+        if i % 10 == 0:
+            train_accuracy = accuracy.eval(feed_dict=feed_dict(True))
+            #     test_accuracy = accuracy.eval(feed_dict=feed_dict(False))
+            print("step %d, train acc.: %g" % (i, train_accuracy))
+        sess.run(train_step, feed_dict=feed_dict(True))
+    print("%d runs gives test accurracy: %g" % (i + 1, accuracy.eval(feed_dict=feed_dict(False))))
