@@ -145,7 +145,6 @@ def feed_dict(train, batch_size=10):
 #
 
 # Set up the NN architecture
-# TODO: dimensions should be flexible, not hardcoded
 layer1 = convolution_layer(layer0, [3, 3, 1, 16], 'conv1')
 print("layer1 (conv) shape:", layer1.get_shape())
 layer2 = pooling_layer(layer1, 2, 'pool1')

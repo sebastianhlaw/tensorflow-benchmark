@@ -102,7 +102,6 @@ def feed_dict(train, batch_size=10):
 
 
 # Set up the NN architecture
-# TODO: dimensions should be flexible, not hardcoded
 layer1 = convolution_layer(x_square, [3, 3, 1, 16])
 layer2 = pooling_layer(layer1, 2)
 layer3 = convolution_layer(layer2, [3, 3, 16, 32])
