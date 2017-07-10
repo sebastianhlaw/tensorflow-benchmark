@@ -1,17 +1,17 @@
 # Based on <https://github.com/fchollet/keras/blob/master/examples/mnist_cnn.py>
 
 from __future__ import print_function
-import numpy as np
-import tensorflow as tf
-import random as rn
-import keras
-from keras.datasets import mnist
-from keras.models import Sequential
-from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D
-from keras import backend as K
+
 import math
-import matplotlib.pyplot as plt
 import os
+
+import keras
+import matplotlib.pyplot as plt
+import numpy as np
+from keras import backend as K
+from keras.datasets import mnist
+from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D
+from keras.models import Sequential
 
 PLOT_DIR = os.path.join(os.path.expanduser("~"), "Development", "tensorflow-benchmark", "data", "plots")
 
@@ -40,18 +40,34 @@ def grid_dimensions(n):
     return factors[i], factors[i]
 
 
-def plot_image(image):
-    """Plot a single image.
-    :param image: Tensor of dimension (n, m, 1), a single slice of images[i].
-    :return: None. 
+def plot_image(images, image=0, save=False):
+    """Display an image.
+    Args:
+        images: Tensor of dimension (?, n, m, channels=1) containing images.
+        image: Integer, index of image desired.
+        save: Boolean option to save image to disc.
+    Returns:
+        Nothing. Plots an image, optionally saves to disc.
     """
     plt.xticks([])
     plt.yticks([])
-    plt.imshow(image[:, :, 0], cmap='')
+    plt.imshow(images[image, :, :, 0], cmap='')
     plt.show()
+    if save:
+        plt.savefig(os.path.join(PLOT_DIR, "images, input-" + str(image).zfill(5) + ".png"),
+                    bbox_inches='tight')
 
 
-def plot_convolution_filters(model, layer):
+def plot_convolution_filters(model, layer, save=False):
+    """Plots the convolution filters/kernels for a given layer.
+    
+    Args:
+        model: Keras model object.
+        layer: Integer
+        save: Boolean option to save image to disc.
+    Returns:
+        Nothing. Plots an image, optionally saves to disc.
+    """
     weights = model.get_weights()
     w = weights[layer]
     w_min = np.min(w)
@@ -60,31 +76,48 @@ def plot_convolution_filters(model, layer):
     grid_rows, grid_cols = grid_dimensions(n_filters)
     fig, axes = plt.subplots(min([grid_rows, grid_cols]), max([grid_rows, grid_cols]))
     for f, axis in enumerate(axes.flat):
-        image = w[:, :, 0, f]
-        axis.imshow(image, vmin=w_min, vmax=w_max,
+        im = w[:, :, 0, f]
+        axis.imshow(im, vmin=w_min, vmax=w_max,
                     interpolation='nearest', cmap='magma')
         axis.set_xticks([])
         axis.set_yticks([])
+    plt.tight_layout()
     plt.show()
-    plt.savefig(os.path.join(PLOT_DIR, "conv filter, layer-" + str(layer) + ", channel-0.png"), bbox_inches='tight')
+    if save:
+        plt.savefig(os.path.join(PLOT_DIR, "filters, layer-" + str(layer) + ".png"),
+                    bbox_inches='tight')
 
 
-def plot_convolution_outputs(model, layer, images, image=0):
+def plot_convolution_outputs(model, layer, images, image=0, save=False):
+    """Plot the images resulting from the application of convolution filters.
+    Resources:
+        Hints on how to get via Keras <https://www.youtube.com/watch?v=5tW3y7lm7V0>
+    Args:
+        model: Keras model object.
+        layer: Integer, 
+        images: Tensor of dimension (?, n, m, channels=1) containing images.
+        image: Integer, index of image desired.
+        save: Boolean option to save image to disc.
+    Returns:
+        Nothing. Plots an image, optionally saves to disc.
+    """
     in_image = images[image:image + 1, :, :, :]
     out_layer = model.layers[layer].get_output_at(0)
-    out_func = K.function([model.layers[layer].get_input_at(0)], [out_layer])
+    out_func = K.function([model.layers[0].get_input_at(0)], [out_layer])
     out_image = out_func([in_image])
     n_filters = out_image[0].shape[3]
     grid_rows, grid_cols = grid_dimensions(n_filters)
     fig, axes = plt.subplots(min([grid_rows, grid_cols]), max([grid_rows, grid_cols]))
     for f, axis in enumerate(axes.flat):
-        image = out_image[0][0, :, :, f]
-        axis.imshow(image, interpolation='nearest', cmap='viridis')
+        im = out_image[0][0, :, :, f]
+        axis.imshow(im, interpolation='nearest', cmap='viridis')
         axis.set_xticks([])
         axis.set_yticks([])
+    plt.tight_layout()
     plt.show()
-    plt.savefig(os.path.join(PLOT_DIR, "conv image, layer-" + str(layer) + ", channel-0, image-" + str(image) + ".png"),
-                bbox_inches='tight')
+    if save:
+        plt.savefig(os.path.join(PLOT_DIR, "images, layer" + str(layer) + ", image-" + str(image).zfill(5) + ".png"),
+                    bbox_inches='tight')
 
 
 # Reproducibility controls
@@ -129,6 +162,7 @@ print(x_test.shape[0], 'test samples')
 y_train = keras.utils.to_categorical(y_train, num_classes)
 y_test = keras.utils.to_categorical(y_test, num_classes)
 
+# build the model
 model = Sequential()
 model.add(Conv2D(16, kernel_size=(3, 3), activation='relu', input_shape=input_shape))
 model.add(MaxPooling2D(pool_size=(2, 2)))
